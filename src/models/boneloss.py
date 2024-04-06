@@ -19,10 +19,14 @@ from mrcnn.config import Config
 from mrcnn import model as modellib, utils
 from mrcnn import visualize
 # Path to trained weights file
+#将根目录路径 ROOT_DIR 和预训练权重文件名 "mask_rcnn_coco.h5" 拼接在一起，
+#生成 COCO 数据集的预训练权重文件的完整路径，并将该路径存储在变量 COCO_WEIGHTS_PATH 中供后续使用。
 COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 
 # Directory to save logs and model checkpoints, if not provided
 # through the command line argument --logs
+#将根目录路径 ROOT_DIR 和文件夹名称 "logs" 拼接在一起，生成存储日志文件的目录路径，
+#并将该路径存储在变量 DEFAULT_LOGS_DIR 中。这样，在程序中可以通过 DEFAULT_LOGS_DIR 变量来引用该目录路径，方便管理和使用日志文件。
 DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 
 
@@ -30,21 +34,26 @@ DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 class TeethConfig(Config):
     """Configuration for training on the toy  dataset.
     Derives from the base Config class and overrides some values.
+    继承自基础Config类的自定义配置类，用于设置在玩具数据集上训练模型时的参数。
     """
     # Give the configuration a recognizable name
+    #继承自基础Config类的自定义配置类，用于设置在玩具数据集上训练模型时的参数。
     NAME = "teeth"
 
     # We use a GPU with 12GB memory, which can fit two images.
     # Adjust down if you use a smaller GPU.
+    #指定每个GPU上处理的图像数量为2，这取决于GPU的内存大小，可以根据实际情况调整
     IMAGES_PER_GPU = 2
 
     # Number of classes (including background)
+    #设置类别数量为1（背景）加上1（玩具数据集中的类别，比如牙齿），总共2个类别。
     NUM_CLASSES = 1 + 1  # Background + balloon
 
     # Number of training steps per epoch
     STEPS_PER_EPOCH = 100
 
     # Skip detections with < 90% confidence
+    # 设置检测结果的最小置信度阈值为0.9，低于该阈值的检测结果将被忽略。
     DETECTION_MIN_CONFIDENCE = 0.9
 
 
@@ -55,6 +64,8 @@ class TeethConfig(Config):
 class TeethDataset(utils.Dataset):
 
     def load_teeth(self, dataset_dir, subset):
+        #load_teeth函数用于加载牙齿数据集。
+        #首先，我们添加了一个名为"teeth"的类别。
         # Add classes. We have only one class to add.
         self.add_class("teeth", 1, "teeth")
         points = []
@@ -86,6 +97,7 @@ class TeethDataset(utils.Dataset):
         #         path=image_path,
         #         width=width, height=height,
         #         polygons=polygons)
+        #然后，从指定目录中加载牙齿数据集。接着，从JSON文件中读取牙齿标注数据，并将图像路径和标注信息添加到数据集中。
         teeth_release_file = 'Labelled json files_labelled xrays_labelled.json'
         for line in open(teeth_release_file, 'r'):
             response = json.loads(line)
@@ -122,6 +134,7 @@ class TeethDataset(utils.Dataset):
 
                 counter += 1
 
+            #最后，从另一个JSON文件中读取牙齿的释放数据，并提取关键信息以供后续处理
             self.add_image(
                 "teeth",
                 image_id='./dataset/Images/'+image_path,  # use file name as a unique image id
